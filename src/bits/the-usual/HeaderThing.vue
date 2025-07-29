@@ -6,24 +6,25 @@ import SunIcon from '@/bits/icons/SunIcon.vue'
 import MoonIcon from '@/bits/icons/MoonIcon.vue'
 import PlayIcon from '@/bits/icons/PlayIcon.vue'
 import PauseIcon from '@/bits/icons/PauseIcon.vue'
+import MenuIcon from '@/bits/icons/MenuIcon.vue'
 import avatarUrl from '@/stuff/avatar.png'
 
 const themeStore = useThemeStore()
 const musicStore = useMusicStore()
 const status = ref('Crafting digital experiences')
 
-// --- STRUKTUR NAVIGASI BARU DENGAN SUB-MENU ---
+// Data navigasi dipindahkan ke App.vue, tapi kita bisa menyimpannya di sini juga jika diperlukan
 const navLinks = ref([
   { text: 'Notes', to: '/notes' },
   { text: 'Music', to: '/songs' },
   {
     text: 'Games',
-    // Item ini akan menjadi dropdown
     children: [{ text: 'Sky Clock', to: '/sky-clock' }],
   },
 ])
 
 const openDropdown = ref(null)
+const emit = defineEmits(['open-mobile-nav'])
 </script>
 
 <template>
@@ -60,8 +61,8 @@ const openDropdown = ref(null)
         </div>
       </div>
 
-      <nav class="navigation">
-        <!-- Loop melalui struktur navigasi baru -->
+      <!-- Navigasi Desktop (akan disembunyikan di HP) -->
+      <nav class="desktop-navigation">
         <div
           v-for="link in navLinks"
           :key="link.text"
@@ -69,13 +70,8 @@ const openDropdown = ref(null)
           @mouseenter="openDropdown = link.children ? link.text : null"
           @mouseleave="openDropdown = null"
         >
-          <!-- Jika item adalah link biasa -->
           <RouterLink v-if="link.to" :to="link.to" class="nav-link">{{ link.text }}</RouterLink>
-
-          <!-- Jika item adalah dropdown -->
           <span v-if="link.children" class="nav-link has-dropdown">{{ link.text }}</span>
-
-          <!-- Tampilkan dropdown jika ada children dan sedang di-hover -->
           <transition name="dropdown-fade">
             <div v-if="link.children && openDropdown === link.text" class="dropdown-menu">
               <RouterLink
@@ -89,7 +85,6 @@ const openDropdown = ref(null)
             </div>
           </transition>
         </div>
-
         <button
           @click="themeStore.toggleDarkMode"
           class="theme-toggle"
@@ -99,12 +94,19 @@ const openDropdown = ref(null)
           <MoonIcon v-else />
         </button>
       </nav>
+
+      <!-- Tombol Menu Mobile (hanya muncul di HP) -->
+      <div class="mobile-controls">
+        <button @click="emit('open-mobile-nav')" class="menu-button" aria-label="Open menu">
+          <MenuIcon />
+        </button>
+      </div>
     </div>
   </header>
 </template>
 
 <style scoped>
-/* ... Style lama tidak berubah ... */
+/* ... style lama tidak berubah ... */
 .main-header {
   position: sticky;
   top: 0;
@@ -126,12 +128,14 @@ const openDropdown = ref(null)
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-width: 0;
 }
 .profile-info {
   display: flex;
   align-items: center;
   gap: 12px;
   text-decoration: none;
+  min-width: 0;
 }
 .avatar {
   width: 44px;
@@ -140,6 +144,7 @@ const openDropdown = ref(null)
   border: 2px solid var(--border-color);
   object-fit: cover;
   transition: transform 0.3s ease;
+  flex-shrink: 0;
 }
 .profile-info:hover .avatar {
   transform: scale(1.1) rotate(10deg);
@@ -147,6 +152,7 @@ const openDropdown = ref(null)
 .text-info {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 .name {
   font-size: 1.1rem;
@@ -158,6 +164,9 @@ const openDropdown = ref(null)
   font-size: 0.85rem;
   color: var(--text-secondary);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .mini-player {
   display: flex;
@@ -174,6 +183,7 @@ const openDropdown = ref(null)
   height: 40px;
   border-radius: 6px;
   object-fit: cover;
+  flex-shrink: 0;
 }
 .mini-song-details {
   width: 120px;
@@ -228,14 +238,14 @@ const openDropdown = ref(null)
   transition: width 0.25s linear;
 }
 
-/* === STYLE BARU UNTUK NAVIGASI DROPDOWN === */
-.navigation {
+/* === STYLE BARU UNTUK NAVIGASI RESPONSIVE === */
+.desktop-navigation {
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* Perkecil jarak antar item utama */
+  gap: 0.5rem;
 }
 .nav-item {
-  position: relative; /* Kunci untuk posisi dropdown */
+  position: relative;
 }
 .nav-link {
   font-size: 0.9rem;
@@ -270,7 +280,6 @@ const openDropdown = ref(null)
   background-color: var(--accent-soft);
   transform: scale(1.1);
 }
-
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -297,8 +306,6 @@ const openDropdown = ref(null)
   background-color: var(--accent-soft);
   color: var(--text-primary);
 }
-
-/* Transisi untuk dropdown */
 .dropdown-fade-enter-active,
 .dropdown-fade-leave-active {
   transition:
@@ -309,5 +316,41 @@ const openDropdown = ref(null)
 .dropdown-fade-leave-to {
   opacity: 0;
   transform: translateY(10px);
+}
+
+.mobile-controls {
+  display: none;
+} /* Sembunyikan di desktop */
+.menu-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  transition: all 0.3s ease;
+}
+.menu-button:hover {
+  color: var(--text-primary);
+  background-color: var(--accent-soft);
+}
+
+/* Titik di mana layout berubah */
+@media (max-width: 768px) {
+  .desktop-navigation {
+    display: none;
+  } /* Sembunyikan nav desktop di HP */
+  .mobile-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  } /* Tampilkan kontrol mobile di HP */
+  .mini-player {
+    display: none;
+  } /* Sembunyikan mini player di HP agar header tidak terlalu ramai */
+  .status {
+    max-width: 100px;
+  } /* Batasi lebar status agar tidak mendorong layout */
 }
 </style>
