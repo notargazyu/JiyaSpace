@@ -12,7 +12,7 @@ const skills = ref([
   { name: 'Makan Indomie tengah malam', level: 99 },
   { name: 'Overthinking', level: 75 },
 ])
-const pinnedNote = ref('invest in yourself, it pays off.')
+const pinnedNote = ref('invest in yourself, it pays offgit .')
 const favoriteQuote = ref({
   text: 'The best error message is the one that never appears.',
   author: 'Thomas Fuchs',
@@ -24,9 +24,9 @@ const techStack = ref([
   { name: 'Node.js', logo: 'https://nodejs.org/static/images/logo.svg' },
 ])
 const socialLinks = ref([
-  { name: 'GitHub', url: 'https://github.com', icon: GitHubIcon },
-  { name: 'Instagram', url: 'https://instagram.com', icon: InstagramIcon },
-  { name: 'Facebook', url: 'https://facebook.com', icon: FacebookIcon },
+  { name: 'GitHub', url: 'https://github.com/notargazyu', icon: GitHubIcon },
+  { name: 'Instagram', url: 'https://instagram.com/arga_rawr', icon: InstagramIcon },
+  { name: 'Facebook', url: 'https://facebook.com/shallwelife', icon: FacebookIcon },
 ])
 </script>
 
