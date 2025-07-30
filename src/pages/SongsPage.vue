@@ -1,136 +1,176 @@
 <script setup>
-import { ref } from 'vue'
-import CardBox from '@/bits/the-usual/CardBox.vue'
+// 'ref' sudah tidak diperlukan dan dihapus
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useMusicStore } from '@/the-brain/music.js'
-import NowPlayingIcon from '@/bits/icons/NowPlayingIcon.vue' // Impor ikon baru
+// PERBAIKAN: Impor dari file data.js yang benar
+import { playlists } from '@/db/data.js'
+import PlayIcon from '@/bits/icons/PlayIcon.vue'
+// 'PauseIcon' sudah tidak diperlukan dan dihapus
+import NowPlayingIcon from '@/bits/icons/NowPlayingIcon.vue'
 
+const route = useRoute()
 const musicStore = useMusicStore()
-const songs = ref(musicStore.playlist)
 
-const handlePlaySong = (index) => {
-  musicStore.selectTrack(index)
+// Temukan playlist yang sesuai berdasarkan ID dari URL
+const playlist = computed(() => {
+  // Gunakan 'playlists' yang diimpor dari data.js
+  return playlists.find((p) => p.id === route.params.id)
+})
+
+const handlePlaySong = (songIndex) => {
+  // Pertama, pastikan store menggunakan playlist yang benar
+  musicStore.loadPlaylist(playlist.value.songs)
+
+  // Jika lagu yang diklik adalah lagu yang sedang diputar, panggil togglePlay
+  if (musicStore.currentTrackIndex === songIndex && musicStore.playlist === playlist.value.songs) {
+    musicStore.togglePlay()
+  } else {
+    // Jika lagu yang diklik adalah lagu baru, panggil selectTrack
+    musicStore.selectTrack(songIndex)
+  }
 }
 </script>
 
 <template>
-  <div>
-    <h1 class="page-title">Playlist</h1>
-    <p class="page-subtitle">A curated list of tracks for every mood and moment.</p>
-    <div class="songs-grid">
-      <div
-        v-for="(song, index) in songs"
-        :key="song.id"
-        class="song-card-wrapper"
-        :class="{
-          'is-playing': musicStore.currentTrackIndex === index && musicStore.isPlaying,
-          'is-paused': musicStore.currentTrackIndex === index && !musicStore.isPlaying,
-        }"
-        :style="{ animationDelay: `${index * 100}ms` }"
-        @click="handlePlaySong(index)"
-      >
-        <CardBox class="song-card">
-          <div class="album-art-container">
-            <img
-              :src="song.albumArt"
-              :alt="`Album art for ${song.title}`"
-              class="album-art"
-              onerror="this.onerror=null;this.src='https://placehold.co/300x300/1e1e1e/e9ecef?text=Error';"
-            />
-            <!-- Ikon "Now Playing" yang muncul saat lagu diputar -->
-            <div class="overlay">
-              <NowPlayingIcon class="now-playing-icon" />
-            </div>
-          </div>
-          <div class="song-info">
-            <h3 class="song-title">{{ song.title }}</h3>
-            <p class="song-artist">{{ song.artist }}</p>
-          </div>
-        </CardBox>
+  <div v-if="playlist">
+    <div class="playlist-header">
+      <img
+        :src="playlist.coverArt"
+        :alt="`Cover for ${playlist.name}`"
+        class="header-cover-art"
+        onerror="this.onerror=null;this.src='https://placehold.co/200x200/1e1e1e/e9ecef?text=Error';"
+      />
+      <div class="header-info">
+        <p class="header-type">Playlist</p>
+        <h1 class="header-title">{{ playlist.name }}</h1>
+        <p class="header-description">{{ playlist.description }}</p>
       </div>
     </div>
+
+    <div class="songs-list">
+      <div
+        v-for="(song, index) in playlist.songs"
+        :key="song.id"
+        class="song-list-item"
+        :class="{ 'is-playing': musicStore.currentTrack?.id === song.id && musicStore.isPlaying }"
+        @click="handlePlaySong(index)"
+      >
+        <div class="song-number-or-icon">
+          <!-- PERBAIKAN: v.if diubah menjadi v-if -->
+          <NowPlayingIcon v-if="musicStore.currentTrack?.id === song.id && musicStore.isPlaying" />
+          <PlayIcon v-else class="play-icon" />
+          <span class="song-number">{{ index + 1 }}</span>
+        </div>
+        <div class="list-song-info">
+          <p class="list-song-title">{{ song.title }}</p>
+          <p class="list-song-artist">{{ song.artist }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div v-else>
+    <p>Playlist not found.</p>
   </div>
 </template>
 
 <style scoped>
-/* ... style lama tidak berubah ... */
-.page-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-.page-subtitle {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  margin-top: 0;
+/* Style tidak berubah */
+.playlist-header {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
   margin-bottom: 2.5rem;
 }
-.songs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-.song-card-wrapper {
-  animation: fadeIn 0.6s ease-out both;
-  cursor: pointer;
-}
-.song-card {
-  padding: 0;
-  overflow: hidden;
-}
-.album-art-container {
-  position: relative;
-  padding-bottom: 100%;
-}
-.album-art {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+.header-cover-art {
+  width: 200px;
+  height: 200px;
+  border-radius: 16px;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  box-shadow: 0 8px 25px var(--shadow);
 }
-.song-card:hover .album-art {
-  transform: scale(1.1);
-}
-.song-info {
-  padding: 1rem;
-}
-.song-title {
-  font-size: 1rem;
+.header-type {
+  font-size: 0.9rem;
   font-weight: 700;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem 0;
+}
+.header-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+}
+.header-description {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-top: 1rem;
+}
+.songs-list {
+  display: flex;
+  flex-direction: column;
+}
+.song-list-item {
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.song-list-item:hover {
+  background-color: var(--accent-soft);
+}
+.song-list-item.is-playing {
+  background-color: var(--accent-soft);
+}
+.song-number-or-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+.play-icon {
+  display: none;
+  color: var(--text-primary);
+}
+.song-list-item:hover .song-number {
+  display: none;
+}
+.song-list-item:hover .play-icon {
+  display: block;
+}
+.song-list-item.is-playing .song-number,
+.song-list-item.is-playing .play-icon {
+  display: none;
+}
+.song-list-item.is-playing .song-number-or-icon > svg {
+  display: block;
+  color: var(--accent);
+}
+.list-song-info {
+  min-width: 0;
+}
+.list-song-title {
+  font-weight: 500;
   margin: 0;
   color: var(--text-primary);
 }
-.song-artist {
+.list-song-artist {
   font-size: 0.9rem;
   color: var(--text-secondary);
   margin: 0.25rem 0 0 0;
 }
-
-/* === STYLE BARU UNTUK INDIKATOR "NOW PLAYING" === */
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-.now-playing-icon {
-  width: 48px;
-  height: 48px;
-  color: white;
-}
-.song-card-wrapper.is-playing .overlay {
-  opacity: 1;
-}
-.song-card-wrapper.is-playing .album-art {
-  transform: scale(1.1);
+@media (max-width: 768px) {
+  .playlist-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .header-title {
+    font-size: 2rem;
+  }
 }
 </style>

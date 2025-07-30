@@ -4,10 +4,6 @@ import GitHubIcon from '@/bits/icons/GitHubIcon.vue'
 import InstagramIcon from '@/bits/icons/InstagramIcon.vue'
 import FacebookIcon from '@/bits/icons/FacebookIcon.vue'
 import ArrowUpIcon from '@/bits/icons/ArrowUpIcon.vue'
-import PaletteIcon from '@/bits/icons/PaletteIcon.vue' // Impor ikon baru
-
-// Definisikan event yang akan dikirim ke parent
-const emit = defineEmits(['toggle-color-picker'])
 
 const socialLinks = ref([
   { name: 'GitHub', url: 'https://github.com', icon: GitHubIcon },
@@ -35,18 +31,8 @@ const scrollToTop = () => {
   <footer class="site-footer">
     <div class="footer-content">
       <div class="footer-left">
-        <!-- Tombol BARU untuk membuka color picker -->
-        <button
-          @click="emit('toggle-color-picker')"
-          class="icon-button"
-          aria-label="Change accent color"
-        >
-          <PaletteIcon />
-        </button>
+        <p class="copyright-text">&copy; {{ new Date().getFullYear() }} JiyaSpace.</p>
       </div>
-
-      <p class="copyright-text">&copy; {{ new Date().getFullYear() }} JiyaSpace.</p>
-
       <div class="footer-right">
         <div class="social-links">
           <a
@@ -76,7 +62,6 @@ const scrollToTop = () => {
 </template>
 
 <style scoped>
-/* ... style lama ... */
 .site-footer {
   padding: 2rem 1rem;
   border-top: 1px solid var(--border-color);
@@ -106,33 +91,12 @@ const scrollToTop = () => {
   opacity: 0;
   transform: translateY(10px);
 }
-
-/* === PERUBAHAN & STYLE BARU === */
 .footer-left,
 .footer-right {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
-.icon-button {
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  border-radius: 8px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex;
-  transition: all 0.3s ease;
-}
-.icon-button:hover {
-  color: var(--text-primary);
-  background-color: var(--accent-soft);
-}
-.icon-button svg {
-  width: 22px;
-  height: 22px;
-}
-
 .social-links {
   display: flex;
   gap: 0.5rem;
@@ -152,7 +116,6 @@ const scrollToTop = () => {
   height: 22px;
   display: block;
 }
-
 .back-to-top {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -176,25 +139,5 @@ const scrollToTop = () => {
 .back-to-top svg {
   width: 20px;
   height: 20px;
-}
-
-/* === PENAMBAHAN MEDIA QUERY UNTUK TAMPILAN HP === */
-@media (max-width: 640px) {
-  .footer-content {
-    flex-direction: column; /* Ubah tata letak menjadi vertikal */
-    gap: 1.5rem; /* Tambah jarak vertikal */
-  }
-
-  .copyright-text {
-    order: 2; /* Pindahkan teks copyright ke tengah */
-  }
-
-  .footer-left {
-    order: 3; /* Pindahkan tombol color picker ke bawah */
-  }
-
-  .footer-right {
-    order: 1; /* Pindahkan social media ke paling atas */
-  }
 }
 </style>

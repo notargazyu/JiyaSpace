@@ -13,7 +13,6 @@ const themeStore = useThemeStore()
 const musicStore = useMusicStore()
 const status = ref('Crafting digital experiences')
 
-// Data navigasi dipindahkan ke App.vue, tapi kita bisa menyimpannya di sini juga jika diperlukan
 const navLinks = ref([
   { text: 'Notes', to: '/notes' },
   { text: 'Music', to: '/songs' },
@@ -61,7 +60,6 @@ const emit = defineEmits(['open-mobile-nav'])
         </div>
       </div>
 
-      <!-- Navigasi Desktop (akan disembunyikan di HP) -->
       <nav class="desktop-navigation">
         <div
           v-for="link in navLinks"
@@ -95,7 +93,6 @@ const emit = defineEmits(['open-mobile-nav'])
         </button>
       </nav>
 
-      <!-- Tombol Menu Mobile (hanya muncul di HP) -->
       <div class="mobile-controls">
         <button @click="emit('open-mobile-nav')" class="menu-button" aria-label="Open menu">
           <MenuIcon />
@@ -106,7 +103,6 @@ const emit = defineEmits(['open-mobile-nav'])
 </template>
 
 <style scoped>
-/* ... style lama tidak berubah ... */
 .main-header {
   position: sticky;
   top: 0;
@@ -237,8 +233,6 @@ const emit = defineEmits(['open-mobile-nav'])
   border-radius: 2px;
   transition: width 0.25s linear;
 }
-
-/* === STYLE BARU UNTUK NAVIGASI RESPONSIVE === */
 .desktop-navigation {
   display: flex;
   align-items: center;
@@ -317,40 +311,29 @@ const emit = defineEmits(['open-mobile-nav'])
   opacity: 0;
   transform: translateY(10px);
 }
-
 .mobile-controls {
   display: none;
-} /* Sembunyikan di desktop */
+}
 .menu-button {
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--text-secondary);
-  padding: 0.5rem;
-  border-radius: 8px;
-  display: flex;
-  transition: all 0.3s ease;
-}
-.menu-button:hover {
   color: var(--text-primary);
-  background-color: var(--accent-soft);
+  padding: 0.5rem;
 }
 
-/* Titik di mana layout berubah */
-@media (max-width: 768px) {
+@media (max-width: 800px) {
   .desktop-navigation {
     display: none;
-  } /* Sembunyikan nav desktop di HP */
+  }
   .mobile-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  } /* Tampilkan kontrol mobile di HP */
+    display: block;
+  }
   .mini-player {
     display: none;
-  } /* Sembunyikan mini player di HP agar header tidak terlalu ramai */
+  }
   .status {
     max-width: 100px;
-  } /* Batasi lebar status agar tidak mendorong layout */
+  }
 }
 </style>

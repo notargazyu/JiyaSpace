@@ -1,16 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import songsData from '@/db/songs.json'
+import { playlists as allPlaylists } from '@/db/data.js'
 
-// Pemeriksaan Kritis: Pastikan Howler.js sudah dimuat
-if (!window.Howl) {
-  console.error('!!! KESALAHAN FATAL: Howler.js tidak ditemukan. Periksa file index.html Anda.')
-}
 const { Howl } = window
 
 export const useMusicStore = defineStore('music', () => {
-  // STATE
-  const playlist = ref(songsData)
+  const currentPlaylist = ref([])
   const currentTrackIndex = ref(0)
   const isPlaying = ref(false)
   const sound = ref(null)
@@ -18,22 +13,24 @@ export const useMusicStore = defineStore('music', () => {
   const duration = ref(0)
   let seekInterval = null
 
-  // GETTERS
-  const currentTrack = computed(() => playlist.value[currentTrackIndex.value])
+  const currentTrack = computed(() => currentPlaylist.value[currentTrackIndex.value])
   const progress = computed(() => {
     if (duration.value === 0) return 0
     return (currentTime.value / duration.value) * 100
   })
 
-  // ACTIONS
+  function loadPlaylist(playlist) {
+    currentPlaylist.value = playlist
+  }
+
   function selectTrack(index) {
     if (sound.value) {
       sound.value.stop()
       clearInterval(seekInterval)
     }
-
     currentTrackIndex.value = index
     const track = currentTrack.value
+    if (!track) return
 
     sound.value = new Howl({
       src: [track.audioSrc],
@@ -58,20 +55,15 @@ export const useMusicStore = defineStore('music', () => {
         currentTime.value = 0
         clearInterval(seekInterval)
       },
-      onloaderror: (id, err) => {
-        console.error('[Howler] Gagal memuat audio:', err)
-      },
-      onplayerror: (id, err) => {
-        console.error('[Howler] Gagal memutar audio:', err)
-      },
+      onloaderror: (id, err) => console.error('Howler load error:', err),
+      onplayerror: (id, err) => console.error('Howler play error:', err),
     })
-
     sound.value.play()
   }
 
   function togglePlay() {
     if (!sound.value) {
-      selectTrack(currentTrackIndex.value)
+      if (currentPlaylist.value.length > 0) selectTrack(0)
       return
     }
     if (isPlaying.value) {
@@ -82,11 +74,12 @@ export const useMusicStore = defineStore('music', () => {
   }
 
   return {
-    playlist,
+    playlist: currentPlaylist,
     currentTrackIndex,
     isPlaying,
     currentTrack,
     progress,
+    loadPlaylist,
     selectTrack,
     togglePlay,
   }
