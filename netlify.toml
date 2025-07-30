@@ -1,0 +1,6 @@
+# File ini memberitahu Netlify cara menangani routing untuk Single Page Application
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
