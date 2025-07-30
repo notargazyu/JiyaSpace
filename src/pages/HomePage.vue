@@ -12,7 +12,7 @@ const skills = ref([
   { name: 'Makan Indomie tengah malam', level: 99 },
   { name: 'Overthinking', level: 75 },
 ])
-const pinnedNote = ref('Jangan lupa deploy versi terbaru sebelum pamer ke teman.')
+const pinnedNote = ref('invest in yourself, it pays off.')
 const favoriteQuote = ref({
   text: 'The best error message is the one that never appears.',
   author: 'Thomas Fuchs',

@@ -5,7 +5,11 @@ import TrashIcon from '@/bits/icons/TrashIcon.vue' // Ikon baru untuk hapus
 
 // Data awal jika tidak ada data di localStorage
 const initialNotes = [
-  { id: 1, date: '2025-07-28', content: 'Ini adalah catatan pertamaku! Bisa dihapus.' },
+  {
+    id: 1,
+    date: '2025-07-28',
+    content: 'Notes disimpan di localstorage, gak kekirim ke database!.',
+  },
 ]
 
 const notes = ref([])
